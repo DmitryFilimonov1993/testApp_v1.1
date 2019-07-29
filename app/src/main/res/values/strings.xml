@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TestApp_v1.1</string>
+    <string name="weather_title_hint">Enter name of the city</string>
+    <string name="weather_title_label">City</string>
+    <string name="details_label">Details</string>
+    <string name="weather_solved">Solved</string>
+    <string name="weather_date">Date</string>
+</resources>
