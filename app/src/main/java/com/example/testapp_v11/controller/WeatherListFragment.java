@@ -1,5 +1,6 @@
 package com.example.testapp_v11.controller;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.testapp_v11.R;
@@ -27,22 +29,37 @@ public class WeatherListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View mView = inflater.inflate(R.layout.fragment_list_weather, container, false);
+         View mView = inflater.inflate(R.layout.fragment_list_weather, container, false);
 
-        mRecyclerView = mView.findViewById(R.id.weather_recycler_view);
+//        mRecyclerView = mView.findViewById(R.id.weather_recycler_view);
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//
+//        updateUI();
+         return mView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mRecyclerView = view.findViewById(R.id.weather_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
 
-        return mView;
     }
 
     private void updateUI(){
 
         WeatherLab weatherLab = WeatherLab.getInstance(getActivity());
         List<WeatherDate> weatherDates = weatherLab.getWeatherDates();
-        mAdapter = new WeatherAdapter(weatherDates);
-        mRecyclerView.setAdapter(mAdapter);
+
+        if (mAdapter == null) {
+            mAdapter = new WeatherAdapter(weatherDates);
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
 
     }
 
@@ -53,23 +70,26 @@ public class WeatherListFragment extends Fragment {
         public WeatherHolder(LayoutInflater inflater, ViewGroup parent) {
 
             super(inflater.inflate(R.layout.list_item_weather, parent, false));
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
+                    Intent intent = WeatherActivity.newIntent(getActivity(), mWeatherDate.getId());
+                    startActivity(intent);
+
+                }
+            });
             mCityView = itemView.findViewById(R.id.weather_city);
-            mDateView = itemView.findViewById(R.id.weather_date);
+            mDateView = itemView.findViewById(R.id.weather_date_view);
 
         }
 
         public void bind(WeatherDate weatherDate){
 
-            try{
-
             mWeatherDate = weatherDate;
             mCityView.setText(mWeatherDate.getCity());
             mDateView.setText(mWeatherDate.getDate().toString());
-        }
-            catch (Exception e){
-            mDateView.setText("Бричка");
-            }
+
         }
     }
 
@@ -100,6 +120,11 @@ public class WeatherListFragment extends Fragment {
         public int getItemCount() {
             return mWeatherDates.size();
         }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
     }
 }
